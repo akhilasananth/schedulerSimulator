@@ -8,6 +8,13 @@ void delayms(){
     ms = (long)time(NULL) * 1000;
     while((long)time(NULL) > ms);
 }
+//Function Prototypes
+
+void readFromFile(FILE *fp ,char * filename);
+void putOnReadyQueue();
+void runProcess(process p);
+long double getExeTime_milliseconds();
+double getExeTime_Seconds();
 
 //Variables
 enum processState {new, ready, running, waiting, terminated}; 
@@ -33,6 +40,8 @@ processList *temp = NULL;
 processList *readyQueue = NULL;
 process runningProcess;
 
+int currentTime = getExeTime_milliseconds();
+
 
 FILE *processes;
 
@@ -40,9 +49,6 @@ FILE *processes;
 //Fils names
 char *processesFilename = "processes.txt";
 
-//Function Prototypes
-
-void readFromFile(FILE *fp ,char * filename);
 
 
 /*****************************************************************************************/
@@ -121,5 +127,15 @@ void runProcess(process p){
     sleep((p.IOFrequency)/1000);
     
     return;
+}
+
+//Returns the time in milliseconds from the time you press run
+long double getExeTime_milliseconds(){
+	return (long double)(getExeTime_Seconds()/CLOCKS_PER_SEC);
+}
+
+//Returns the time in seconds from the time you press run
+double getExeTime_Seconds(){
+	return (double)clock();
 }
 	

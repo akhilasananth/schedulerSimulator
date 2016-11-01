@@ -17,7 +17,9 @@ long double getExeTime_milliseconds();
 double getExeTime_Seconds();
 
 //Variables
-enum processState {new, ready, running, waiting, terminated}; 
+enum processState {new, ready, running, waiting, terminated};
+const char* processState_Strings[] = {"New", "Ready", "Running", "Waiting","Terminated"};
+processState s[5]; s[0] = new; s[1] = ready; s[2] = running; s[3] = waiting; s[3] = terminated;
 
 typedef struct process{
 	char *pid;
@@ -132,14 +134,15 @@ void runProcess(process p){
 //Process goes from ready to Running
 //Done when running is empty and process is available in the ready queue
 void readyToRunning(){
-	//if(ready queue is !empty)
-		//if(running is !empty)
-			//change state from ready to running;
-			//print state change;
-			//running = pop(readyQueue);
-		//else
+	if(isEmpty(readyQueue) == 1){ //if(ready queue is !empty)
+		if(runningProcess != NULL){ //if(running is !empty)
+			process *p = getNextFromReadyQueue();
+			printStateChange(getExeTime_milliseconds(), p.pid, ready, running); //print state change;
+			p.ps = running;//change state from ready to running;
+			runningProcess = waitingQueue.pop();//running = pop(readyQueue);
+		}//else
 			//return
-	//else
+	}//else
 		//return
 }
 
@@ -179,6 +182,17 @@ void waitingToReady(){
 		
 }
 
+//return 0 if false
+//return 1 if true
+int isEmpty(processList *list){
+	return 0;
+}
+
+//iterates through the ready queue and gets the next process to run
+process getNextFromReadyQueue(){
+	return 	NULL;
+}
+
 //Returns the time in milliseconds from the time you press run
 long double getExeTime_milliseconds(){
 	return (long double)(getExeTime_Seconds()/CLOCKS_PER_SEC);
@@ -187,5 +201,10 @@ long double getExeTime_milliseconds(){
 //Returns the time in seconds from the time you press run
 double getExeTime_Seconds(){
 	return (double)clock();
+}
+
+void printStateChange(long double time, char *pid, enum oldState, enum newState){
+	printf("Time of transition: %ld   |Pid: %c   |Old State: %c   |New State: %c\n",
+			time, *pid, processState_Strings[oldState],processState_Strings[newState]);
 }
 	

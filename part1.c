@@ -11,6 +11,7 @@ void delayms(){
 //Function Prototypes
 
 void readFromFile(FILE *fp ,char * filename);
+process dequeue(processList *lst);
 void putOnReadyQueue();
 void runProcess(process p);
 long double getExeTime_milliseconds();
@@ -39,7 +40,9 @@ typedef struct processList{
 processList *head = NULL;
 processList *temp = NULL;
 
-processList *readyQueue = NULL;
+processList *readyQueueHead = NULL;
+processList *readyQueueTemp = NULL;
+
 process runningProcess;
 
 int currentTime = getExeTime_milliseconds();
@@ -110,15 +113,35 @@ void readFromFile(FILE *fp ,char * filename){
 	fclose(fp);
 }
 
+//Dequeues a linked list FCFS. 
+//Input: head of the list
+//Output: process that got popped off the list
+process dequeue(processList *lst){
+	process p = lst->p;
+	
+	lst->p = lst->next->p;
+	lst->next = lst->next->next;
+	printf("The current head is %s \n", lst->p);
+	
+	return p;
+}
+
+//Puts a process in a linked list 
+void enqueue(processList *lst, process proc){
+	lst->p = proc;
+	lst->next = (processList*)malloc(sizeof(processList));
+	lst = lst->next;
+	
+}
+
 //puts process in ready queue
 void putOnReadyQueue(){
-    for(int i=0; i<(temp->p.aTime + 1); i++){
-        if((head->p.aTime)== i){
-            head->p.ps = running;
-            runProcess(head->p);
-        }
-        
-    }
+    
+    readyQueueHead->p = dequeue(head);
+    readyQueueHead->next = (processList*)malloc(sizeof(processList));
+	readyQueueTemp = readyQueueHead;
+	
+	
     
 }
 

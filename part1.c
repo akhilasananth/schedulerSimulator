@@ -129,6 +129,56 @@ void runProcess(process p){
     return;
 }
 
+//Process goes from ready to Running
+//Done when running is empty and process is available in the ready queue
+void readyToRunning(){
+	//if(ready queue is !empty)
+		//if(running is !empty)
+			//change state from ready to running;
+			//print state change;
+			//running = pop(readyQueue);
+		//else
+			//return
+	//else
+		//return
+}
+
+//process goes from running to terminated if cpu time is reached
+//otherwise checks if IOFrequency is reached
+void runningToTerminated(){
+	//if(running is !empty)
+		//if(processor running time >= CPUTime)
+			//change state to from running to terminated
+			//print state change
+			//clear running
+		//else
+			//runningToWaiting();
+	//else
+		//return
+}
+
+//process goes from running to Waiting if IOFrequency is reached
+void runningToWaiting(){
+	//if(IOFrequency of process is reached)
+		//change state of process
+		//print state change
+		//push into waitingQueue
+	//else
+		//return
+}
+
+//iterates through each process in the waiting queue
+//each process goes from waiting to Ready if IODuration is reached
+void waitingToReady(){
+	//while(waiting Queue is empty)
+		//choose first process
+		//if(IODuration of process is reached)
+			//change state of process
+			//print state change
+			//push into ready queue
+		
+}
+
 //Returns the time in milliseconds from the time you press run
 long double getExeTime_milliseconds(){
 	return (long double)(getExeTime_Seconds()/CLOCKS_PER_SEC);

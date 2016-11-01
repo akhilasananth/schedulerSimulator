@@ -124,6 +124,14 @@ process dequeue(processList *lst){
 	return p;
 }
 
+//Puts a process in a linked list 
+void enqueue(processList *lst, process proc){
+	lst->p = proc;
+	lst->next = (processList*)malloc(sizeof(processList));
+	lst = lst->next;
+	
+}
+
 //puts process in ready queue
 void putOnReadyQueue(){
     

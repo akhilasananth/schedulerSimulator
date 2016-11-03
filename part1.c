@@ -14,13 +14,12 @@ void readFromFile(FILE *fp ,char * filename);
 process dequeue(processList *lst);
 void putOnReadyQueue();
 void runProcess(process p);
-long double getExeTime_milliseconds();
-double getExeTime_Seconds();
+int getExeTime_milliseconds();
+int getExeTime_Seconds();
 
 //Variables
 enum processState {new, ready, running, waiting, terminated};
 const char* processState_Strings[] = {"New", "Ready", "Running", "Waiting","Terminated"};
-processState s[5]; s[0] = new; s[1] = ready; s[2] = running; s[3] = waiting; s[3] = terminated;
 
 typedef struct process{
 	char *pid;
@@ -217,17 +216,18 @@ process getNextFromReadyQueue(){
 }
 
 //Returns the time in milliseconds from the time you press run
-long double getExeTime_milliseconds(){
-	return (long double)(getExeTime_Seconds()/CLOCKS_PER_SEC);
+int getExeTime_milliseconds(){
+	return clock();
 }
 
 //Returns the time in seconds from the time you press run
-double getExeTime_Seconds(){
-	return (double)clock();
+int getExeTime_Seconds(){
+	int temp = getExeTime_milliseconds();
+	return (temp/CLOCKS_PER_SEC);
 }
 
-void printStateChange(long double time, char *pid, enum oldState, enum newState){
-	printf("Time of transition: %ld   |Pid: %c   |Old State: %c   |New State: %c\n",
-			time, *pid, processState_Strings[oldState],processState_Strings[newState]);
+void printStateChange(int time, char* pid, int oldState, int newState){
+	printf("Time of transition: %d   Pid: %s   Old State: %s   New State: %s\n",
+			time, pid, processState_Strings[oldState],processState_Strings[newState]);
 }
 	

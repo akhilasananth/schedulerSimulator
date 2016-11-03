@@ -15,6 +15,8 @@ typedef struct process{
 	double CPUTime;
 	double IOFrequency;
 	double IODuration;
+	int exeTime;
+	int waitingTime;
 	int priority;
 	enum processState ps;
 } process;
@@ -31,9 +33,14 @@ processList *temp = NULL;
 processList *readyQueueHead = NULL;
 processList *readyQueueTemp = NULL;
 
+processList *waitingQueueHead = NULL;
+processList *waitingQueueTemp = NULL;
+
 process *runningProcess = NULL;
 
 int currentTime;
+int processExeTime;
+int processFrequencyTime;
 
 //Fils names
 FILE *processes;
@@ -101,7 +108,7 @@ void readFromFile(FILE *fp ,char * filename){
 		
 		sscanf(line, "%s\t%lf\t%lf\t%lf\t%lf\n", processID2, &arrivalTime2,&CPUTime2,&IOFrequency2,&IODuration2);
 
-		process p1 = {processID2, arrivalTime2,CPUTime2, IOFrequency2, IODuration2, 0, ready};
+		process p1 = {processID2, arrivalTime2,CPUTime2, IOFrequency2, IODuration2,0,0,0, ready};
 		temp->p = p1;
 	    temp->next = (processList*)malloc(sizeof(processList));
 		printf("Current process pid = %s\n", temp->p.pid);
@@ -147,12 +154,14 @@ void putOnReadyQueue(){
 //Process goes from ready to Running
 //Done when running is empty and process is available in the ready queue
 void readyToRunning(){
-	if(isEmpty(readyQueueHead) == 1){ //if(ready queue is !empty)
-		if(runningProcess){ //if(running is !empty)
+	if(isEmpty(readyQueueHead)){ //if(ready queue is !empty)
+		if(runningProcess){ //if(running is not null)
 			process p = dequeue(readyQueueHead); //get next process
 			printStateChange(getExeTime_milliseconds(), p.pid, ready, running); //print state change;
-			p.ps = running;//change state from ready to running;
-			runningProcess = &p;//running = pop(readyQueue);
+			p.ps = running; //change state from ready to running;
+			p.exeTime = p.waitingTime = getExeTime_Seconds();
+			runningProcess = &p; //running = pop(readyQueue);
+			//processFrequencyTime = processExeTime = getExeTime_Seconds();
 		}//else
 			//return
 	}//else
@@ -162,42 +171,49 @@ void readyToRunning(){
 //process goes from running to terminated if cpu time is reached
 //otherwise checks if IOFrequency is reached
 void runningToTerminated(){
-	//if(running is !empty)
-		//if(processor running time >= CPUTime)
-			//change state to from running to terminated
-			//print state change
-			//clear running
-		//else
-			//runningToWaiting();
-	//else
+	if(runningProcess){ //if(running is not null)
+		process p = *runningProcess;
+		if((getExeTime_Seconds()-processExeTime) >= p.CPUTime){ //if(processor running time >= CPUTime)
+			p.ps = terminated; //change state to from running to terminated
+			printStateChange(getExeTime_milliseconds(), p.pid, running, terminated); //print state change
+			runningProcess = NULL; //clear running
+		}//else
+			runningToWaiting(); //runningToWaiting();
+	}//else
 		//return
 }
 
 //process goes from running to Waiting if IOFrequency is reached
 void runningToWaiting(){
-	//if(IOFrequency of process is reached)
-		//change state of process
-		//print state change
-		//push into waitingQueue
-	//else
+	process p = *runningProcess;
+	if((getExeTime_Seconds()-processFrequencyTime) >= p.IOFrequency){ //if(IOFrequency of process is reached)
+		//here we need a way to keep track of the processtime when in waiting
+		p.ps = waiting; //change state of process
+		printStateChange(getExeTime_milliseconds(), p.pid, running, waiting); //print state change
+		enqueue(waitingQueueHead,p); //push into waitingQueue
+		runningProcess = NULL; //clear running;
+		processFrequencyTime = getExeTime_Seconds(); //reset frequency time
+	} //else
 		//return
 }
 
 //iterates through each process in the waiting queue
 //each process goes from waiting to Ready if IODuration is reached
 void waitingToReady(){
-	//while(waiting Queue is empty)
+	while(!isEmpty(waitingQueueHead)){ //while(waiting Queue is !empty)
 		//choose first process
 		//if(IODuration of process is reached)
-			//change state of process
-			//print state change
+			//p.ps = ready; //change state of process
+			//printStateChange(getExeTime_milliseconds(), p.pid, waiting, ready); //print state change
 			//push into ready queue
+	}
 		
 }
 
 //return 0 if false
 //return 1 if true
 int isEmpty(processList *list){
+	if(!list){return 1;}
 	return 0;
 }
 

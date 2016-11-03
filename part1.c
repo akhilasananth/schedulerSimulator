@@ -31,7 +31,7 @@ processList *temp = NULL;
 processList *readyQueueHead = NULL;
 processList *readyQueueTemp = NULL;
 
-process runningProcess;
+process *runningProcess = NULL;
 
 int currentTime;
 
@@ -147,12 +147,12 @@ void putOnReadyQueue(){
 //Process goes from ready to Running
 //Done when running is empty and process is available in the ready queue
 void readyToRunning(){
-	if(isEmpty(readyQueue) == 1){ //if(ready queue is !empty)
-		if(runningProcess != NULL){ //if(running is !empty)
-			process p; //get next process
+	if(isEmpty(readyQueueHead) == 1){ //if(ready queue is !empty)
+		if(runningProcess){ //if(running is !empty)
+			process p = dequeue(readyQueueHead); //get next process
 			printStateChange(getExeTime_milliseconds(), p.pid, ready, running); //print state change;
 			p.ps = running;//change state from ready to running;
-			runningProcess = waitingQueue.pop();//running = pop(readyQueue);
+			runningProcess = &p;//running = pop(readyQueue);
 		}//else
 			//return
 	}//else

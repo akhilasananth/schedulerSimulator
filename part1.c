@@ -4,23 +4,11 @@
 #include <string.h>
 #include <time.h>
 
-void delayms(){
-    ms = (long)time(NULL) * 1000;
-    while((long)time(NULL) > ms);
-}
-//Function Prototypes
-
-void readFromFile(FILE *fp ,char * filename);
-process dequeue(processList *lst);
-void putOnReadyQueue();
-void runProcess(process p);
-int getExeTime_milliseconds();
-int getExeTime_Seconds();
-
-//Variables
+//Enum
 enum processState {new, ready, running, waiting, terminated};
 const char* processState_Strings[] = {"New", "Ready", "Running", "Waiting","Terminated"};
 
+//Structs
 typedef struct process{
 	char *pid;
 	double aTime;
@@ -36,6 +24,7 @@ typedef struct processList{
 	struct processList *next;
 }processList;
 
+//Variables
 processList *head = NULL;
 processList *temp = NULL;
 
@@ -44,19 +33,30 @@ processList *readyQueueTemp = NULL;
 
 process runningProcess;
 
-int currentTime = getExeTime_milliseconds();
-
-
-FILE *processes;
-
+int currentTime;
 
 //Fils names
+FILE *processes;
 char *processesFilename = "processes.txt";
 
+//Function Prototypes
+void readFromFile(FILE *fp ,char * filename);
+struct process dequeue(processList *lst);
+void readyToRunning();
+void runningToTerminated();
+void runningToWaiting();
+void waitingToReady();
+int isEmpty(processList *list);
+void putOnReadyQueue();
+int getExeTime_milliseconds();
+int getExeTime_Seconds();
+void printStateChange(int time, char* pid, int oldState, int newState);
 
 
 /*****************************************************************************************/
 int main(){
+	
+	currentTime = getExeTime_milliseconds();
 	
 	head = (processList*)malloc(sizeof(processList));
 	
@@ -120,7 +120,7 @@ process dequeue(processList *lst){
 	
 	lst->p = lst->next->p;
 	lst->next = lst->next->next;
-	printf("The current head is %s \n", lst->p);
+	printf("The current head is %s \n", lst->p.pid);
 	
 	return p;
 }
@@ -144,21 +144,12 @@ void putOnReadyQueue(){
     
 }
 
-//Runs a process for its I/O frequency time
-
-void runProcess(process p){
-    runningProcess = p;
-    sleep((p.IOFrequency)/1000);
-    
-    return;
-}
-
 //Process goes from ready to Running
 //Done when running is empty and process is available in the ready queue
 void readyToRunning(){
 	if(isEmpty(readyQueue) == 1){ //if(ready queue is !empty)
 		if(runningProcess != NULL){ //if(running is !empty)
-			process *p = getNextFromReadyQueue();
+			process p; //get next process
 			printStateChange(getExeTime_milliseconds(), p.pid, ready, running); //print state change;
 			p.ps = running;//change state from ready to running;
 			runningProcess = waitingQueue.pop();//running = pop(readyQueue);
@@ -208,11 +199,6 @@ void waitingToReady(){
 //return 1 if true
 int isEmpty(processList *list){
 	return 0;
-}
-
-//iterates through the ready queue and gets the next process to run
-process getNextFromReadyQueue(){
-	return 	NULL;
 }
 
 //Returns the time in milliseconds from the time you press run
